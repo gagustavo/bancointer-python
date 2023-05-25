@@ -112,6 +112,7 @@ class TestBancoInter(unittest.TestCase):
             "codigoBarras": "00000000000000000000000000000000000000000000",
             "linhaDigitavel": "00000000000000000000000000000000000000000000000",
             "dataVencimento": "30/01/2020",
+            "numDiasAgenda": 12,
             "dataEmissao": "01/01/2020",
             "descricao": "",
             "seuNumero": "0000",
@@ -145,6 +146,7 @@ class TestBancoInter(unittest.TestCase):
         consulta = self.bancointer.consulta(nosso_numero="000007")
         self.assertEqual(consulta, json)
         self.assertEqual(consulta["situacao"], "PAGO")
+        self.assertEqual(consulta["numDiasAgenda"], 12)
 
 
 if __name__ == "__main__":

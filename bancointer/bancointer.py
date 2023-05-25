@@ -210,7 +210,7 @@ class BancoInter(object):
             return request.status_code
 
     def boleto(
-        self, pagador, mensagem, dataEmissao, dataVencimento, seuNumero, valorNominal
+        self, pagador, mensagem, dataEmissao, dataVencimento, seuNumero, valorNominal, numDiasAgenda=30
     ):
         """Metodo para emissao de boletos bancarios na API do Banco Inter.
 
@@ -243,6 +243,7 @@ class BancoInter(object):
             dataVencimento (str): "Y-m-d"
             seuNumero (str): seu numero de controle do documentp
             valorNominal (float): valor do boleto, ex: 100.50
+            numDiasAgenda (integer): Número de dias corridos após o vencimento para o cancelamento efetivo automático do boleto. (de 0 até 60)
 
         Returns:
             response: Corpo do response retornado pela API.
@@ -253,7 +254,7 @@ class BancoInter(object):
         json = {
             "pagador": pagador,
             "dataVencimento": dataVencimento,
-            "numDiasAgenda": "30",
+            "numDiasAgenda": numDiasAgenda,
             "multa": self.multa,
             "mora": self.mora,
             "valorAbatimento": 0,
