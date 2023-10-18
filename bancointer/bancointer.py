@@ -164,7 +164,7 @@ class BancoInter(object):
 
     @property
     def headers(self):
-        if self._API_VERSION == 2:
+        if self._API_VERSION in [2, 3]:
             token = self._get_token()
             if(self._BEARER_TOKEN == None):
                 self.bearer_token = token['access_token']
@@ -210,11 +210,11 @@ class BancoInter(object):
             return request.status_code
 
     def boleto(
-        self, pagador, mensagem, dataEmissao, dataVencimento, seuNumero, valorNominal, numDiasAgenda=30
+        self, pagador, mensagem, dataEmissao, dataVencimento, seuNumero, valorNominal, numDiasAgenda=30, path="boletos"
     ):
         """Metodo para emissao de boletos bancarios na API do Banco Inter.
 
-           Saiba mais em: https://developers.bancointer.com.br/reference
+           Saiba mais em: https://developers.inter.co/references
 
         Args:
             pagador (dict): {
@@ -244,13 +244,11 @@ class BancoInter(object):
             seuNumero (str): seu numero de controle do documentp
             valorNominal (float): valor do boleto, ex: 100.50
             numDiasAgenda (integer): Número de dias corridos após o vencimento para o cancelamento efetivo automático do boleto. (de 0 até 60)
+            path (str): path para geração de boletos ou cobranças
 
         Returns:
             response: Corpo do response retornado pela API.
         """
-
-        path = "boletos"
-
         json = {
             "pagador": pagador,
             "dataVencimento": dataVencimento,
@@ -289,10 +287,13 @@ class BancoInter(object):
         # response=self.headers
         return response
 
+    def cobranca(self, pagador, mensagem, dataEmissao, dataVencimento, seuNumero, valorNominal, numDiasAgenda=30):
+        return self.boleto(pagador, mensagem, dataEmissao, dataVencimento, seuNumero, valorNominal, numDiasAgenda=30, path="cobrancas")
+
     def _response_save(self, response, file_path):
         if response.content:
             pdf = response.content
-            if self._API_VERSION == 2:
+            if self._API_VERSION in [2, 3]:
                 content = json.loads(response.content)
                 pdf = bytes(content['pdf'], 'UTF-8')
 
@@ -323,6 +324,22 @@ class BancoInter(object):
 
         file_path = download_path + os.sep + nosso_numero + ".pdf"
 
+        return self._response_save(response, file_path)
+
+    def download_qrcode(self, codigoCobranca, download_path):
+        """Metodo para download de boletos emitidos.
+
+        Args:
+            nosso_numero (str): Nosso numero de identificacao do boleto
+            download_path (str): Path completo para salvar o boleto. Ex: `C:\downloads`
+
+        Returns:
+            (bool): True em caso de sucesso ou False caso contrario.
+        """
+        path = f"cobrancas/{codigoCobranca}/pdf"
+        json = None
+        response = self._request(method="get", path=path, json=json, cert=self.cert)
+        file_path = download_path + os.sep + codigoCobranca + ".pdf"
         return self._response_save(response, file_path)
 
     def baixa(self, nosso_numero, motivo: Baixa):
