@@ -214,7 +214,7 @@ class BancoInter(object):
     ):
         """Metodo para emissao de boletos bancarios na API do Banco Inter.
 
-           Saiba mais em: https://developers.inter.co/references
+           Saiba mais em: https://developers.inter.co/references/cobranca
 
         Args:
             pagador (dict): {
@@ -288,7 +288,11 @@ class BancoInter(object):
         return response
 
     def cobranca(self, pagador, mensagem, dataEmissao, dataVencimento, seuNumero, valorNominal, numDiasAgenda=30):
-        return self.boleto(pagador, mensagem, dataEmissao, dataVencimento, seuNumero, valorNominal, numDiasAgenda=30, path="cobrancas")
+        """Metodo para emissao de cobranças (Boleto+PIX) na API do Banco Inter.
+
+           Saiba mais em: https://developers.inter.co/references/cobranca-bolepix
+        """
+        return self.boleto(pagador, mensagem, dataEmissao, dataVencimento, seuNumero, valorNominal, numDiasAgenda=numDiasAgenda, path="cobrancas")
 
     def _response_save(self, response, file_path):
         if response.content:
